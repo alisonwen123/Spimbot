@@ -1,0 +1,19 @@
+#finding starting values
+	la $t0, tile_data
+	lw $a0, GET_NUM_WATER_DROPS
+	li $v0, PRINT_INT
+	syscall
+	li   	$a0, ' '   
+	li $v0, PRINT_CHAR
+	syscall
+	lw $a0, GET_NUM_SEEDS
+	li $v0, PRINT_INT
+	syscall
+	li   	$a0, ' '   
+	li $v0, PRINT_CHAR
+	syscall
+	lw $a0, GET_NUM_FIRE_STARTERS
+	li $v0, PRINT_INT
+	syscall
+        jr $ra
+
