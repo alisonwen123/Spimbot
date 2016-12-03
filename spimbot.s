@@ -1,4 +1,4 @@
-# syscall constants
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              # syscall constants
 PRINT_STRING = 4
 PRINT_CHAR   = 11
 PRINT_INT    = 1
@@ -160,6 +160,21 @@ request_puzzle:
 	la $a1, puzzle
         jal recursive_backtracking
         sw $a0, SUBMIT_SOLUTION
+        jal clear_solution
+
+clear_solution:
+  move $t1, $0
+  la $t0, solution
+  jal for_loop
+
+for_loop:
+  bgt $t1, 328, exit_loop
+  sw $0, 0($t0)
+  add $t1, $t1, 4
+  add $t0, $t0, 4
+
+exit_loop:
+  jr $ra
 	#reset solution here - hasn't been done yet
 	#lw $a0, GET_NUM_FIRE_STARTERS
 	#li $v0, PRINT_INT
