@@ -205,33 +205,6 @@ done:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 .globl go_to_tile
   go_to_tile:
   sub $sp, $sp,76 
@@ -256,12 +229,17 @@ done:
   sw    $t7, 72($sp)
   #a0 is x, a1 is y
     
-    lw $t0, BOT_X
-    lw $t1, BOT_Y
+  lw $t0, BOT_X
+  lw $t1, BOT_Y
 
-    sub $a0, $a0, $t0
-    sub $a1, $a1, $t1
-    jal sb_arctan
+  sub $a0, $a0, $t0
+  sub $a1, $a1, $t1
+  jal sb_arctan
+  sw $v0, ANGLE
+  li $t0, 1
+  sw $t0, ANGLE_CONTROL
+  li $t0, 10
+  sw $t0, VELOCITY
 
   lw    $ra, 0($sp)
   lw    $a0, 4($sp)     
@@ -295,15 +273,15 @@ done:
   sw    $ra, 0($sp)
   sw    $a0, 4($sp)     
   sw    $a1, 8($sp)    
-  sw    $f0, 12($sp)    
-  sw    $f1, 16($sp)     
-  sw    $f2, 20($sp) 
-  sw    $f3, 24($sp) 
-  sw    $f4, 28($sp) 
-  sw    $f5, 32($sp) 
-  sw    $f6, 36($sp) 
-  sw    $f7, 40($sp) 
-  sw    $f8, 44($sp) 
+  s.s    $f0, 12($sp)    
+  s.s    $f1, 16($sp)     
+  s.s    $f2, 20($sp) 
+  s.s    $f3, 24($sp) 
+  s.s    $f4, 28($sp) 
+  s.s    $f5, 32($sp) 
+  s.s    $f6, 36($sp) 
+  s.s    $f7, 40($sp) 
+  s.s    $f8, 44($sp) 
   sw    $t0, 48($sp)    
   sw    $t1, 52($sp)     
   sw    $t2, 56($sp) 
@@ -364,15 +342,15 @@ done:
   lw    $ra, 0($sp)
   lw    $a0, 4($sp)     
   lw    $a1, 8($sp)    
-  lw    $f0, 12($sp)    
-  lw    $f1, 16($sp)     
-  lw    $f2, 20($sp) 
-  lw    $f3, 24($sp) 
-  lw    $f4, 28($sp) 
-  lw    $f5, 32($sp) 
-  lw    $f6, 36($sp) 
-  lw    $f7, 40($sp) 
-  lw    $f8, 44($sp) 
+  l.s    $f0, 12($sp)    
+  l.s    $f1, 16($sp)     
+  l.s    $f2, 20($sp) 
+  l.s    $f3, 24($sp) 
+  l.s    $f4, 28($sp) 
+  l.s    $f5, 32($sp) 
+  l.s    $f6, 36($sp) 
+  l.s    $f7, 40($sp) 
+  l.s    $f8, 44($sp) 
   lw    $t0, 48($sp)    
   lw    $t1, 52($sp)     
   lw    $t2, 56($sp) 
