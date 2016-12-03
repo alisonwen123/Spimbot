@@ -54,7 +54,12 @@ REQUEST_PUZZLE_INT_MASK = 0x800
 	tile_data: .space 1600
 	puzzle: .space 4096
 	solution: .space 328
-
+  fire_loc_queue: .space 400
+  harvest_loc_queue: .space 400
+  fire_loc_front: .space 4
+  harvest_loc_front: .space 4
+  fire_loc_back: .space 4
+  harvest_loc_back: .space 4
 
 .text
 main:
@@ -79,6 +84,13 @@ main:
 	sw $t0, REQUEST_PUZZLE
 
 loop:
+  # and $a0, $s0, 0xffff0000  #x-index
+  # srl $a0, $a0, 16 #upper 16 bits
+  # and $a1, $s0, 0xffff #y-index
+  # mul $a0, $a0, 30
+  # add $a0, $a0, 15  #x
+  # mul $a1, $a1, 30
+  # add $a1, $a1, 15  #y
 
 	j	loop
 
@@ -122,19 +134,22 @@ interrupt_dispatch:
 	j done
 
 max_plant:
-	sw $0, MAX_GROWTH_INT_MASK
+	sw $0, MAX_GROWTH_INT_ACK
 	lw $s0, MAX_GROWTH_TILE
-
-	and $a0, $s0, 0xffff0000  #x-index
-	srl $a0, $a0, 16 #upper 16 bits
-	and $a1, $s0, 0xffff #y-index
-	mul $a0, $a0, 30
-	add $a0, $a0, 15  #x
-	mul $a1, $a1, 30
-	add $a1, $a1, 15  #y
-
-	jal go_to_tile
-        
+  la $s1, harvest_loc_queue
+  la $a0, harvest_loc_back
+  lw $a0, 0($a0)
+  mul $a0, $a0, 4
+  add $s1, $s1, $a0
+  la $a0, harvest_loc_back
+  lw $a1, 0($a0)
+  add $a1, $a1, 1
+  blt $a1, 100, store_harvest_back
+  li $a1, 0
+store_harvest_back:
+  sw $a1, 0($a0)
+  sw $s0, 0($s1)
+  j interrupt_dispatch
 #	lw $s2, BOT_X
 	#only called for our tile
 
@@ -164,7 +179,7 @@ get_fire_starter:
 
 	la $a0, puzzle
 	sw $a0, REQUEST_PUZZLE
-        j go_back
+        j interrupt_dispatch
 
 get_seeds:
 
@@ -173,7 +188,7 @@ get_seeds:
 
 	la $a0, puzzle
 	sw $a0, REQUEST_PUZZLE
-        j go_back
+        j interrupt_dispatch
 
 get_water:
 
@@ -182,12 +197,7 @@ get_water:
 
 	la $a0, puzzle
 	sw $a0, REQUEST_PUZZLE
-        j go_back
-
-
-go_back:
-	j interrupt_dispatch
-
+        j interrupt_dispatch
 
 done:
 	la $k0, chunkIH
