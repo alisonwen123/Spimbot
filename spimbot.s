@@ -84,7 +84,7 @@ loop:
 
 
 .kdata				# interrupt handler data (separated just for readability)
-chunkIH:	.space 8	# space for two registers
+chunkIH:	.space 16	# space for two registers
 non_intrpt_str:	.asciiz "Non-interrupt exception\n"
 unhandled_str:	.asciiz "Unhandled interrupt type\n"
 
@@ -98,6 +98,9 @@ interrupt_handler:
 	la $k0 chunkIH
 	sw $a0, 0($k0)
 	sw $a1, 4($k0)
+	sw $s0, 8($k0)
+	sw $s1, 12($k0)
+
 
 	mfc0 $k0, $13 #Get cause register
 	srl $a0, $k0, 2
@@ -109,7 +112,7 @@ interrupt_dispatch:
 	beq $k0, $zero, done
 
 	and $a0, $k0, MAX_GROWTH_ACK #is there a plant at max growth
-	bne $a0, 0, go_to_plant
+	bne $a0, 0, max_plant
 
 	and $a0, $k0, REQUEST_PUZZLE_INT_MASK #Is there a puzzle timer
 	bne $a0, 0, request_puzzle
@@ -118,9 +121,23 @@ interrupt_dispatch:
 	#syscall
 	j done
 
-go_to_plant:
+max_plant:
 	sw $0, MAX_GROWTH_INT_MASK
-	#If it is our tile we harvest if it is someone else's we burn it
+	lw $s0, MAX_GROWTH_TILE
+
+	and $a0, $s0, 0xffff0000  #x-index
+	srl $a0, $a0, 16 #upper 16 bits
+	and $a1, $s0, 0xffff #y-index
+	mul $a0, $a0, 30
+	add $a0, $a0, 15  #x
+	mul $a1, $a1, 30
+	add $a1, $a1, 15  #y
+
+	jal got_to_tile
+        
+#	lw $s2, BOT_X
+	#only called for our tile
+
 
 request_puzzle:
 	sw $0, REQUEST_PUZZLE_ACK
@@ -176,6 +193,8 @@ done:
 	la $k0, chunkIH
 	lw $a0, 0($k0)
 	lw $a1, 4($k0)
+	lw $s0, 8($k0)
+	lw $s1, 12($k0)
 .set noat 
 	move $at, $k1 #restores #at
 
