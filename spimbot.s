@@ -108,12 +108,19 @@ interrupt_dispatch:
 	mfc0 $k0, $13 #Get cause register again
 	beq $k0, $zero, done
 
-	and $a0, $k0, REQUEST_PUZZLE_INT_MASK
+	and $a0, $k0, MAX_GROWTH_ACK #is there a plant at max growth
+	bne $a0, 0, go_to_plant
+
+	and $a0, $k0, REQUEST_PUZZLE_INT_MASK #Is there a puzzle timer
 	bne $a0, 0, request_puzzle
 	
 	#add dispatch for other interrupt types
 	#syscall
 	j done
+
+go_to_plant:
+	sw $0, MAX_GROWTH_INT_MASK
+	#If it is our tile we harvest if it is someone else's we burn it
 
 request_puzzle:
 	sw $0, REQUEST_PUZZLE_ACK
