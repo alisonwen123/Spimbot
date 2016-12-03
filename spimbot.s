@@ -234,17 +234,86 @@ done:
 
 .globl go_to_tile
   go_to_tile:
+  sub $sp, $sp,76 
+  sw    $ra, 0($sp)
+  sw    $a0, 4($sp)     
+  sw    $a1, 8($sp)    
+  sw    $s0, 12($sp)    
+  sw    $s1, 16($sp)     
+  sw    $s2, 20($sp) 
+  sw    $s3, 24($sp) 
+  sw    $s4, 28($sp) 
+  sw    $s5, 32($sp) 
+  sw    $s6, 36($sp) 
+  sw    $s7, 40($sp) 
+  sw    $t0, 44($sp)    
+  sw    $t1, 48($sp)     
+  sw    $t2, 52($sp) 
+  sw    $t3, 56($sp) 
+  sw    $t4, 60($sp) 
+  sw    $t5, 64($sp) 
+  sw    $t6, 68($sp) 
+  sw    $t7, 72($sp)
   #a0 is x, a1 is y
-    sub   $sp, $sp, 
     
     lw $t0, BOT_X
     lw $t1, BOT_Y
 
-    sub $a0, $t0, $a0
-    sub $a1, $t1, $a1
+    sub $a0, $a0, $t0
+    sub $a1, $a1, $t1
+    jal sb_arctan
 
+  lw    $ra, 0($sp)
+  lw    $a0, 4($sp)     
+  lw    $a1, 8($sp)    
+  lw    $s0, 12($sp)    
+  lw    $s1, 16($sp)     
+  lw    $s2, 20($sp) 
+  lw    $s3, 24($sp) 
+  lw    $s4, 28($sp) 
+  lw    $s5, 32($sp) 
+  lw    $s6, 36($sp) 
+  lw    $s7, 40($sp) 
+  lw    $t0, 44($sp)    
+  lw    $t1, 48($sp)     
+  lw    $t2, 52($sp) 
+  lw    $t3, 56($sp) 
+  lw    $t4, 60($sp) 
+  lw    $t5, 64($sp) 
+  lw    $t6, 68($sp) 
+  lw    $t7, 72($sp) 
+  add $sp, $sp, 76
+  jr $ra
+
+
+
+
+.globl sb_arctan
 #start arctan
   sb_arctan:
+  sub $sp, $sp,80 
+  sw    $ra, 0($sp)
+  sw    $a0, 4($sp)     
+  sw    $a1, 8($sp)    
+  sw    $f0, 12($sp)    
+  sw    $f1, 16($sp)     
+  sw    $f2, 20($sp) 
+  sw    $f3, 24($sp) 
+  sw    $f4, 28($sp) 
+  sw    $f5, 32($sp) 
+  sw    $f6, 36($sp) 
+  sw    $f7, 40($sp) 
+  sw    $f8, 44($sp) 
+  sw    $t0, 48($sp)    
+  sw    $t1, 52($sp)     
+  sw    $t2, 56($sp) 
+  sw    $t3, 60($sp) 
+  sw    $t4, 64($sp) 
+  sw    $t5, 68($sp) 
+  sw    $t6, 72($sp) 
+  sw    $t7, 76($sp) 
+
+
     li  $v0, 0    # angle = 0;
 
     abs $t0, $a0  # get absolute values
@@ -290,11 +359,31 @@ done:
     cvt.w.s $f6, $f6  # convert "delta" back to integer
     mfc1  $t0, $f6
     add $v0, $v0, $t0 # angle += delta
+
+
+  lw    $ra, 0($sp)
+  lw    $a0, 4($sp)     
+  lw    $a1, 8($sp)    
+  lw    $f0, 12($sp)    
+  lw    $f1, 16($sp)     
+  lw    $f2, 20($sp) 
+  lw    $f3, 24($sp) 
+  lw    $f4, 28($sp) 
+  lw    $f5, 32($sp) 
+  lw    $f6, 36($sp) 
+  lw    $f7, 40($sp) 
+  lw    $f8, 44($sp) 
+  lw    $t0, 48($sp)    
+  lw    $t1, 52($sp)     
+  lw    $t2, 56($sp) 
+  lw    $t3, 60($sp) 
+  lw    $t4, 64($sp) 
+  lw    $t5, 68($sp) 
+  lw    $t6, 72($sp) 
+  lw    $t7, 76($sp) 
+  add $sp, $sp, 80
+  jr $ra
 #end arctan
-
-
-    add $sp, $sp
-
 
 
 
