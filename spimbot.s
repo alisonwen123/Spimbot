@@ -76,7 +76,9 @@ main:
 
 	#la $t0, tile_data
 	sw $0, SEED_TILE
-
+  sw $0, dest
+  li $t1, 10
+  sw $t1, VELOCITY
 	li $t4, ON_FIRE_MASK
 	or $t4, $t4, BONK_MASK
 	#or $t4, $t4, TIMER_MASK
@@ -90,7 +92,6 @@ main:
 
 	la $t0, puzzle
 	sw $t0, REQUEST_PUZZLE
-
 loop:
   # and $a0, $s0, 0xffff0000  #x-index
   # srl $a0, $a0, 16 #upper 16 bits
@@ -99,6 +100,29 @@ loop:
   # add $a0, $a0, 15  #x
   # mul $a1, $a1, 30
   # add $a1, $a1, 15  #y
+  lw $t0, dest
+#  beq $t0, 0, check_harvest
+already_moving:
+  lw $t0, BOT_X
+  lw $t1, BOT_Y
+  lw $t2, dest_x
+  lw $t3, dest_y
+  sub $t2, $t2, $t0
+  sub $t3, $t3, $t1
+  abs $t2, $t2
+  abs $t3, $t3
+  bgt $t2, 14, not_arrived
+  bgt $t3, 14, not_arrived
+arrived:
+  lw $t0, action
+  sw $0, dest
+  sw $0, dest_x
+  sw $0, dest_y
+  beq $t0, 0, harvest
+  sw $0, PUT_OUT_FIRE
+  j check_harvest
+harvest:
+  sw $0, HARVEST_TILE
 check_harvest:
 	lw $t0, harvest_loc_front
 	lw $t1, harvest_loc_back
@@ -151,12 +175,49 @@ find_coord:
 	sw $a1, dest_y
 	la $s0, go_to_tile
 	jalr $s0
-
-
-
-
 	j	loop
-
+not_arrived:
+  la $t0, tile_data
+  sw $t0, TILE_SCAN
+  lw $t1, BOT_X
+  lw $t2, BOT_Y
+  mul $t2, $t2, 10
+  add $t2, $t2, $t1 #index of the current tile
+  mul $t2, $t2, 16
+  add $t0, $t0, $t2 #address of current tile in the array
+  lw $t1, 0($t0) #load tile state to t1
+  lw $t2, 4($t0) #load owning_bot to t2
+  lw $t3, 8($t0) #load growth to t3
+  lw $t4, 12($t0) #load water to t4 
+  bne $t1, $0, check_waterable
+  lw $t5, GET_NUM_SEEDS
+  ble $t5, $0, loop
+  sw $0, SEED_TILE
+  lw $t7, dest
+  beq $t7, 0, check_harvest
+  j loop
+check_waterable:
+  bne $t2, $0, check_set_fire
+  bge $t3, 200, harvest_now
+  lw $t5, GET_NUM_WATER_DROPS
+  ble $t5, 230, loop
+  sub $t6, $t5, 230
+  sw $t6, WATER_TILE
+  lw $t7, dest
+  beq $t7, 0, check_harvest
+  j loop
+harvest_now:
+  sw $0, HARVEST_TILE
+  lw $t7, dest
+  beq $t7, 0, check_harvest
+  j loop
+check_set_fire:
+  lw $t5, GET_NUM_FIRE_STARTERS
+  ble $t5, $0, loop
+  sw $0, BURN_TILE
+  lw $t7, dest
+  beq $t7, 0, check_harvest
+  j loop
 
 .kdata				# interrupt handler data (separated just for readability)
 chunkIH:	.space 76	# space for two registers
@@ -299,7 +360,6 @@ for_loop:
   	j for_loop
 
 exit_loop:
-
 	lw $s0, GET_NUM_SEEDS
 	blt $s0, 25, get_seeds
 	lw $s0, GET_NUM_WATER_DROPS
