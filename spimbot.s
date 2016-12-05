@@ -102,7 +102,7 @@ loop:
 check_harvest:
 	lw $t0, harvest_loc_front
 	lw $t1, harvest_loc_back
-	bne $t0, $t1 check_fire
+	beq $t0, $t1, check_fire
 
 	mul $t2, $t0, 4
 	la $s0, harvest_loc_queue
@@ -120,7 +120,7 @@ no_change_harvest:
 check_fire:
 	lw $t0, fire_loc_front
 	lw $t1, fire_loc_back
-	bne $t0, $t1 loop
+	beq $t0, $t1, loop
 
 	mul $t2, $t0, 4
 	la $s0, fire_loc_queue
@@ -192,8 +192,8 @@ interrupt_dispatch:
 	and $a0, $k0, ON_FIRE_MASK #is there a a plant on fire
 	bne $a0, 0, fire_interrupt
 
-	and $a0, $k0, BONK_MASK #are we bumping into walls
-	bne $a0, 0, bonk_interrupt
+#	and $a0, $k0, BONK_MASK #are we bumping into walls
+#	bne $a0, 0, bonk_interrupt
 
 	and $a0, $k0, REQUEST_PUZZLE_INT_MASK #Is there a puzzle timer
 	bne $a0, 0, request_puzzle
