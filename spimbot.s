@@ -123,18 +123,25 @@ interrupt_dispatch:
 	mfc0 $k0, $13 #Get cause register again
 	beq $k0, $zero, done
 
-	and $a0, $k0, MAX_GROWTH_ACK #is there a plant at max growth
+	and $a0, $k0, MAX_GROWTH_INT_MASK #is there a plant at max growth
 	bne $a0, 0, max_plant
+
+	and $a0, $k0, ON_FIRE_MASK #is there a a plant on fire
+	bne $a0, 0, fire_interrupt
+
+	and $a0, $k0, BONK_MASK #are we bumping into walls
+	bne $a0, 0, bonk_interrupt
 
 	and $a0, $k0, REQUEST_PUZZLE_INT_MASK #Is there a puzzle timer
 	bne $a0, 0, request_puzzle
+
 	
 	#add dispatch for other interrupt types
 	#syscall
 	j done
 
 max_plant:
-	sw $0, MAX_GROWTH_INT_ACK
+	sw $0, MAX_GROWTH_ACK
 	lw $s0, MAX_GROWTH_TILE
   la $s1, harvest_loc_queue
   la $a0, harvest_loc_back
@@ -146,6 +153,7 @@ max_plant:
   add $a1, $a1, 1
   blt $a1, 100, store_harvest_back
   li $a1, 0
+
 store_harvest_back:
   sw $a1, 0($a0)
   sw $s0, 0($s1)
@@ -153,6 +161,38 @@ store_harvest_back:
 #	lw $s2, BOT_X
 	#only called for our tile
 
+fire_interrupt:
+  sw $0, ON_FIRE_ACK
+  lw $s0, GET_FIRE_LOC
+  la $s1, fire_loc_queue
+  la $a0, fire_loc_back
+  lw $a0, 0($a0)
+  mul $a0, $a0, 4
+  add $s1, $s1, $a0
+  la $a0, fire_loc_back
+  lw $a1, 0($a0)
+  add $a1, $a1, 1
+  blt $a1, 100, store_fire_back
+  li $a1, 0
+
+store_fire_back:
+  sw $a1, 0($a0)
+  sw $s0, 0($s1)
+  j interrupt_dispatch
+#	lw $s2, BOT_X
+	#only called for our tile
+
+bonk_interrupt:
+  sw $0, BONK_ACK
+  li $a0, 75 #set angle 135 relative to actual angle
+  sw $a0, ANGLE
+  li $a1, 0
+  sw $a1, ANGLE_CONTROL
+  li $a0, 5 # Not sure what velocity we want this to be 10 is highest but it's a little fast
+  sw $a0, VELOCITY
+  j interrupt_dispatch
+  
+  
 
 request_puzzle:
 	sw $0, REQUEST_PUZZLE_ACK
@@ -174,7 +214,7 @@ for_loop:
   add $t0, $t0, 4
 
 exit_loop:
-  jr $ra
+  #jr $ra #Alison - questions about this but when this happens there are no more errors
 	#reset solution here - hasn't been done yet
 	#lw $a0, GET_NUM_FIRE_STARTERS
 	#li $v0, PRINT_INT
