@@ -1,4 +1,4 @@
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              # syscall constants
+# syscall constants
 PRINT_STRING = 4
 PRINT_CHAR   = 11
 PRINT_INT    = 1
@@ -60,6 +60,14 @@ REQUEST_PUZZLE_INT_MASK = 0x800
   harvest_loc_front: .space 4
   fire_loc_back: .space 4
   harvest_loc_back: .space 4
+  dest_x: .space 4
+  dest_y: .space 4
+  three: .float	3.0
+  five:	.float	5.0
+  PI:	.float	3.141592
+  F180:	.float  180.0
+  action: .space 4 #0 harvest and 1 for fire
+  dest: .space 4
 
 .text
 main:
@@ -91,6 +99,61 @@ loop:
   # add $a0, $a0, 15  #x
   # mul $a1, $a1, 30
   # add $a1, $a1, 15  #y
+check_harvest:
+	lw $t0, harvest_loc_front
+	lw $t1, harvest_loc_back
+	bne $t0, $t1 check_fire
+
+	mul $t2, $t0, 4
+	la $s0, harvest_loc_queue
+	sw $0, action
+	add $s0, $s0, $t2 #our tile address
+	lw $s1, 0($s0) #tile
+	add $t0, $t0, 1
+	blt $t0, 100, no_change_harvest
+	li $t0, 0
+
+no_change_harvest:
+	sw $t0, harvest_loc_front #changes harvest index
+	j find_coord
+
+check_fire:
+	lw $t0, fire_loc_front
+	lw $t1, fire_loc_back
+	bne $t0, $t1 loop
+
+	mul $t2, $t0, 4
+	la $s0, fire_loc_queue
+	li $t3, 1
+	sw $t3, action
+	add $s0, $s0, $t2 #our tile address
+	lw $s1, 0($s0) #tile
+	add $t0, $t0, 1
+	blt $t0, 100, no_change_fire
+	li $t0, 0
+
+no_change_fire:
+	sw $t0, fire_loc_front #changes harvest index
+	j find_coord
+
+
+find_coord:
+
+	sw $s1, dest
+   	and $a0, $s1, 0xffff0000  #x-index
+  	srl $a0, $a0, 16 #upper 16 bits
+ 	and $a1, $s1, 0xffff #y-index
+  	mul $a0, $a0, 30
+  	add $a0, $a0, 15  #x
+	sw $a0, dest_x
+  	mul $a1, $a1, 30
+   	add $a1, $a1, 15  #y
+	sw $a1, dest_y
+	la $s0, go_to_tile
+	jalr $s0
+
+
+
 
 	j	loop
 
@@ -164,6 +227,8 @@ store_harvest_back:
 fire_interrupt:
   sw $0, ON_FIRE_ACK
   lw $s0, GET_FIRE_LOC
+  lw $s1, dest
+  beq $s0, $s1, change_action
   la $s1, fire_loc_queue
   la $a0, fire_loc_back
   lw $a0, 0($a0)
@@ -182,6 +247,10 @@ store_fire_back:
 #	lw $s2, BOT_X
 	#only called for our tile
 
+change_action:
+  li $s0, 1
+  sw $s0, action
+  j interrupt_dispatch
 bonk_interrupt:
   sw $0, BONK_ACK
   li $a0, 75 #set angle 135 relative to actual angle
@@ -209,26 +278,22 @@ clear_solution:
 
 for_loop:
   	bge $t1, 328, exit_loop
-    sw $0, 0($t0)
+   	 sw $0, 0($t0)
   	add $t1, $t1, 4
-    add $t0, $t0, 4
+  	  add $t0, $t0, 4
   	j for_loop
 
 exit_loop:
-  #jr $ra #Alison - questions about this but when this happens there are no more errors
-	#reset solution here - hasn't been done yet
-	#lw $a0, GET_NUM_FIRE_STARTERS
-	#li $v0, PRINT_INT
-	#syscall
-
-        #evaluat resource type
 
 	lw $s0, GET_NUM_SEEDS
-	blt $s0, 5, get_seeds
+	blt $s0, 25, get_seeds
 	lw $s0, GET_NUM_WATER_DROPS
-	blt $s0, 50, get_water
+	blt $s0, 250, get_water
 
 get_fire_starter:
+
+	lw $s0, GET_NUM_FIRE_STARTERS
+	beq $s0, 10, get_water
 
         li $a0, 2
 	sw $a0, SET_RESOURCE_TYPE
@@ -267,9 +332,6 @@ done:
 .set at
 
 	eret
-
-
-
 
 .globl go_to_tile
   go_to_tile:
@@ -328,9 +390,6 @@ done:
   lw    $t7, 72($sp) 
   add $sp, $sp, 76
   jr $ra
-
-
-
 
 .globl sb_arctan
 #start arctan
