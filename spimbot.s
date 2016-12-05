@@ -159,7 +159,7 @@ find_coord:
 
 
 .kdata				# interrupt handler data (separated just for readability)
-chunkIH:	.space 16	# space for two registers
+chunkIH:	.space 48	# space for two registers
 non_intrpt_str:	.asciiz "Non-interrupt exception\n"
 unhandled_str:	.asciiz "Unhandled interrupt type\n"
 
@@ -175,6 +175,14 @@ interrupt_handler:
 	sw $a1, 4($k0)
 	sw $s0, 8($k0)
 	sw $s1, 12($k0)
+	sw $t0, 16($k0)
+	sw $t1, 20($k0)
+	sw $t2, 24($k0)
+	sw $t3, 28($k0)
+	sw $t4, 32($k0)
+	sw $t5, 36($k0)
+	sw $t6, 40($k0)
+	sw $t7, 44($k0)
 
 
 	mfc0 $k0, $13 #Get cause register
@@ -272,15 +280,15 @@ request_puzzle:
         j clear_solution
 
 clear_solution:
-        move $t1, $0
-  	la $t0, solution
+        move $s1, $0
+	la $s0 solution
   	j for_loop
 
 for_loop:
-  	bge $t1, 328, exit_loop
-   	 sw $0, 0($t0)
-  	add $t1, $t1, 4
-  	  add $t0, $t0, 4
+  	bge $s1, 328, exit_loop
+   	sw $0, 0($s0)
+  	add $s1, $s1, 4
+  	add $s0, $s0, 4
   	j for_loop
 
 exit_loop:
@@ -326,6 +334,17 @@ done:
 	lw $a1, 4($k0)
 	lw $s0, 8($k0)
 	lw $s1, 12($k0)
+	lw $t0, 16($k0)
+	lw $t1, 20($k0)
+	lw $t2, 24($k0)
+	lw $t3, 28($k0)
+	lw $t4, 32($k0)
+	lw $t5, 36($k0)
+	lw $t6, 40($k0)
+	lw $t7, 44($k0)
+
+
+
 .set noat 
 	move $at, $k1 #restores #at
 
