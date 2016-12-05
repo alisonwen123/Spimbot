@@ -159,7 +159,7 @@ find_coord:
 
 
 .kdata				# interrupt handler data (separated just for readability)
-chunkIH:	.space 48	# space for two registers
+chunkIH:	.space 76	# space for two registers
 non_intrpt_str:	.asciiz "Non-interrupt exception\n"
 unhandled_str:	.asciiz "Unhandled interrupt type\n"
 
@@ -171,18 +171,25 @@ interrupt_handler:
 	move $k1, $at #save $at
 .set at
 	la $k0 chunkIH
-	sw $a0, 0($k0)
-	sw $a1, 4($k0)
-	sw $s0, 8($k0)
-	sw $s1, 12($k0)
-	sw $t0, 16($k0)
-	sw $t1, 20($k0)
-	sw $t2, 24($k0)
-	sw $t3, 28($k0)
-	sw $t4, 32($k0)
-	sw $t5, 36($k0)
-	sw $t6, 40($k0)
-	sw $t7, 44($k0)
+  sw    $ra, 0($k0)
+  sw    $a0, 4($k0)     
+  sw    $a1, 8($k0)    
+  sw    $s0, 12($k0)    
+  sw    $s1, 16($k0)     
+  sw    $s2, 20($k0) 
+  sw    $s3, 24($k0) 
+  sw    $s4, 28($k0) 
+  sw    $s5, 32($k0) 
+  sw    $s6, 36($k0) 
+  sw    $s7, 40($k0) 
+  sw    $t0, 44($k0)    
+  sw    $t1, 48($k0)     
+  sw    $t2, 52($k0) 
+  sw    $t3, 56($k0) 
+  sw    $t4, 60($k0) 
+  sw    $t5, 64($k0) 
+  sw    $t6, 68($k0) 
+  sw    $t7, 72($k0)
 
 
 	mfc0 $k0, $13 #Get cause register
@@ -330,18 +337,25 @@ get_water:
 
 done:
 	la $k0, chunkIH
-	lw $a0, 0($k0)
-	lw $a1, 4($k0)
-	lw $s0, 8($k0)
-	lw $s1, 12($k0)
-	lw $t0, 16($k0)
-	lw $t1, 20($k0)
-	lw $t2, 24($k0)
-	lw $t3, 28($k0)
-	lw $t4, 32($k0)
-	lw $t5, 36($k0)
-	lw $t6, 40($k0)
-	lw $t7, 44($k0)
+  lw    $ra, 0($k0)
+  lw    $a0, 4($k0)     
+  lw    $a1, 8($k0)    
+  lw    $s0, 12($k0)    
+  lw    $s1, 16($k0)     
+  lw    $s2, 20($k0) 
+  lw    $s3, 24($k0) 
+  lw    $s4, 28($k0) 
+  lw    $s5, 32($k0) 
+  lw    $s6, 36($k0) 
+  lw    $s7, 40($k0) 
+  lw    $t0, 44($k0)    
+  lw    $t1, 48($k0)     
+  lw    $t2, 52($k0) 
+  lw    $t3, 56($k0) 
+  lw    $t4, 60($k0) 
+  lw    $t5, 64($k0) 
+  lw    $t6, 68($k0) 
+  lw    $t7, 72($k0)
 
 
 
