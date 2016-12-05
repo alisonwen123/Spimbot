@@ -192,9 +192,6 @@ not_arrived:
   add $t0, $t0, $t2 #address of current tile in the array
   lw $t1, 0($t0) #load tile state to t1
   lw $t2, 4($t0) #load owning_bot to t2
-  beq $t2, $0, no_print  
-  sw $t2, PRINT_INT_ADDR
-no_print:
   lw $t3, 8($t0) #load growth to t3
   lw $t4, 12($t0) #load water to t4
   bne $t1, $0, check_waterable
@@ -220,6 +217,7 @@ harvest_now:
   beq $t7, 0, check_harvest
   j loop
 check_set_fire:
+  bne $t1, 1, loop
   lw $t5, GET_NUM_FIRE_STARTERS
   ble $t5, $0, loop
   sw $0, BURN_TILE
