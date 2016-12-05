@@ -103,6 +103,7 @@ loop:
   lw $t0, dest
 #  beq $t0, 0, check_harvest
 already_moving:
+  sw $0, VELOCITY
   lw $t0, BOT_X
   lw $t1, BOT_Y
   lw $t2, dest_x
@@ -177,6 +178,8 @@ find_coord:
 	jalr $s0
 	j	loop
 not_arrived:
+  li $t0, 10
+  sw $t0, VELOCITY
   la $t0, tile_data
   sw $t0, TILE_SCAN
   lw $t1, BOT_X
@@ -268,8 +271,8 @@ interrupt_dispatch:
 	and $a0, $k0, ON_FIRE_MASK #is there a a plant on fire
 	bne $a0, 0, fire_interrupt
 
-#	and $a0, $k0, BONK_MASK #are we bumping into walls
-#	bne $a0, 0, bonk_interrupt
+	and $a0, $k0, BONK_MASK #are we bumping into walls
+	bne $a0, 0, bonk_interrupt
 
 	and $a0, $k0, REQUEST_PUZZLE_INT_MASK #Is there a puzzle timer
 	bne $a0, 0, request_puzzle
