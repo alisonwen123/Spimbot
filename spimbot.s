@@ -188,7 +188,7 @@ bonk_interrupt:
   sw $a0, ANGLE
   li $a1, 0
   sw $a1, ANGLE_CONTROL
-  li $a0, 5 # Not sure what velocity we want this to be 10 is highest but it's a little fast
+  li $a0, 10 # Not sure what velocity we want this to be 10 is highest but it's a little fast
   sw $a0, VELOCITY
   j interrupt_dispatch
   
@@ -200,18 +200,19 @@ request_puzzle:
 	la $a1, puzzle
         jal recursive_backtracking
         sw $a0, SUBMIT_SOLUTION
-        jal clear_solution
+        j clear_solution
 
 clear_solution:
-  move $t1, $0
-  la $t0, solution
-  jal for_loop
+        move $t1, $0
+  	la $t0, solution
+  	j for_loop
 
 for_loop:
-  bgt $t1, 328, exit_loop
-  sw $0, 0($t0)
-  add $t1, $t1, 4
-  add $t0, $t0, 4
+  	bge $t1, 328, exit_loop
+  	sw $0, 0($t0)
+  	add $t1, $t1, 4
+  	add $t0, $t0, 4
+        j for_loop
 
 exit_loop:
   #jr $ra #Alison - questions about this but when this happens there are no more errors
