@@ -209,10 +209,10 @@ clear_solution:
 
 for_loop:
   	bge $t1, 328, exit_loop
-  	sw $0, 0($t0)
+    sw $0, 0($t0)
   	add $t1, $t1, 4
-  	add $t0, $t0, 4
-        j for_loop
+    add $t0, $t0, 4
+  	j for_loop
 
 exit_loop:
   #jr $ra #Alison - questions about this but when this happens there are no more errors
@@ -814,13 +814,18 @@ get_domain_for_addition:
     jal    convert_highest_bit_to_int
     move   $s3, $v0                     # s3 = upper_bound
 
-    sub    $a0, $0, $s2	                # -domain
+    sub    $a0, $0, $s2                 # -domain
     and    $a0, $a0, $s2                # domain & (-domain)
     jal    convert_highest_bit_to_int   # v0 = lower_bound
-	   
+     
     sub    $t0, $s1, 1                  # num_cell - 1
     mul    $t0, $t0, $v0                # (num_cell - 1) * lower_bound
     sub    $t0, $s0, $t0                # t0 = high_bits
+    bge    $t0, 0, gdfa_skip0
+
+    li     $t0, 0
+
+gdfa_skip0:
     bge    $t0, $s3, gdfa_skip1
 
     li     $t1, 1          
@@ -828,7 +833,7 @@ get_domain_for_addition:
     sub    $t0, $t0, 1                  # (1 << high_bits) - 1
     and    $s2, $s2, $t0                # domain & ((1 << high_bits) - 1)
 
-gdfa_skip1:	   
+gdfa_skip1:    
     sub    $t0, $s1, 1                  # num_cell - 1
     mul    $t0, $t0, $s3                # (num_cell - 1) * upper_bound
     sub    $t0, $s0, $t0                # t0 = low_bits
@@ -838,7 +843,7 @@ gdfa_skip1:
     sra    $s2, $s2, $t0                # domain >> (low_bits - 1)
     sll    $s2, $s2, $t0                # domain >> (low_bits - 1) << (low_bits - 1)
 
-gdfa_skip2:	   
+gdfa_skip2:    
     move   $v0, $s2                     # return domain
     lw     $ra, 0($sp)
     lw     $s0, 4($sp)
@@ -847,12 +852,6 @@ gdfa_skip2:
     lw     $s3, 16($sp)
     add    $sp, $sp, 20
     jr     $ra
-    # We highly recommend that you copy in our 
-    # solution when it is released on Tuesday night 
-    # after the late deadline for Lab7.2
-    #
-    # If you reach this part before Tuesday night,
-    # you can paste your Lab7.2 solution here for now
 
 
 .globl get_domain_for_subtraction
