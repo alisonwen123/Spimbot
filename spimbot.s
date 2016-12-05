@@ -183,15 +183,20 @@ not_arrived:
   la $t0, tile_data
   sw $t0, TILE_SCAN
   lw $t1, BOT_X
+  div $t1, $t1, 30
   lw $t2, BOT_Y
+  div $t2, $t2, 30
   mul $t2, $t2, 10
   add $t2, $t2, $t1 #index of the current tile
   mul $t2, $t2, 16
   add $t0, $t0, $t2 #address of current tile in the array
   lw $t1, 0($t0) #load tile state to t1
   lw $t2, 4($t0) #load owning_bot to t2
+  beq $t2, $0, no_print  
+  sw $t2, PRINT_INT_ADDR
+no_print:
   lw $t3, 8($t0) #load growth to t3
-  lw $t4, 12($t0) #load water to t4 
+  lw $t4, 12($t0) #load water to t4
   bne $t1, $0, check_waterable
   lw $t5, GET_NUM_SEEDS
   ble $t5, $0, loop
