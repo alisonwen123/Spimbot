@@ -79,6 +79,9 @@ main:
   sw $0, dest
   li $t1, 10
   sw $t1, VELOCITY
+  li $t1, 180
+  sw $t1, ANGLE
+  sw $0, ANGLE_CONTROL
 	li $t4, ON_FIRE_MASK
 	or $t4, $t4, BONK_MASK
 	#or $t4, $t4, TIMER_MASK
@@ -135,23 +138,25 @@ no_change_harvest:
 	j find_coord
 
 check_fire:
-	lw $t0, fire_loc_front
-	lw $t1, fire_loc_back
-	beq $t0, $t1, loop
+  lw $t0, fire_loc_front
+  lw $t1, fire_loc_back
+  beq $t0, $t1, loop
 
-	mul $t2, $t0, 4
-	la $s0, fire_loc_queue
-	li $t3, 1
-	sw $t3, action
-	add $s0, $s0, $t2 #our tile address
-	lw $s1, 0($s0) #tile
-	add $t0, $t0, 1
-	blt $t0, 100, no_change_fire
-	li $t0, 0
+  mul $t2, $t0, 4
+  la $s0, fire_loc_queue
+  add $s0, $s0, $t2 #our tile address
+  lw $s1, 0($s0) #tile
+  add $t0, $t0, 1
+  blt $t0, 100, no_change_fire
+  li $t0, 0
 
 no_change_fire:
-	sw $t0, fire_loc_front #changes harvest index
-	j find_coord
+  sw $t0, fire_loc_front #changes harvest index
+  lw $t3, GET_NUM_WATER_DROPS
+  ble $t3, 105, loop
+  li $t3, 1
+  sw $t3, action
+  j find_coord
 
 
 find_coord:
