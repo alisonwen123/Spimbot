@@ -93,17 +93,9 @@ main:
 	la $t0, puzzle
 	sw $t0, REQUEST_PUZZLE
 loop:
-  # and $a0, $s0, 0xffff0000  #x-index
-  # srl $a0, $a0, 16 #upper 16 bits
-  # and $a1, $s0, 0xffff #y-index
-  # mul $a0, $a0, 30
-  # add $a0, $a0, 15  #x
-  # mul $a1, $a1, 30
-  # add $a1, $a1, 15  #y
   lw $t0, dest
 #  beq $t0, 0, check_harvest
 already_moving:
-  sw $0, VELOCITY
   lw $t0, BOT_X
   lw $t1, BOT_Y
   lw $t2, dest_x
