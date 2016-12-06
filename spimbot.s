@@ -173,6 +173,9 @@ find_coord:
 	sw $a0, dest_x
   	mul $a1, $a1, 30
    	add $a1, $a1, 15  #y
+        lw $t0, action
+        beq $t0, 1, destination
+after_dest:
 	sw $a1, dest_y
 	la $s0, go_to_tile
 	jalr $s0
@@ -203,7 +206,7 @@ not_arrived:
   j loop
 check_waterable:
   bne $t2, $0, check_set_fire
-  bge $t3, 200, harvest_now
+  bge $t3, 100, harvest_now
   lw $t5, GET_NUM_WATER_DROPS
   ble $t5, 230, loop
   sub $t6, $t5, 230
@@ -220,10 +223,22 @@ check_set_fire:
   bne $t1, 1, loop
   lw $t5, GET_NUM_FIRE_STARTERS
   ble $t5, $0, loop
+  blt $t3, 200, loop
   sw $0, BURN_TILE
   lw $t7, dest
   beq $t7, 0, check_harvest
   j loop
+
+destination:
+  lw $t0, BOT_X
+  lw $t1, BOT_Y
+  sub $s0, $t0, $a0
+  sub $s1, $t1, $a1
+  abs $s0, $s0
+  abs $s1, $s1
+  bgt $s0, 150, check_harvest
+  bgt $s1, 150, check_harvest
+  j after_dest
 
 .kdata				# interrupt handler data (separated just for readability)
 chunkIH:	.space 76	# space for two registers
