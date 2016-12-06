@@ -331,7 +331,7 @@ fire_interrupt:
   la $a0, fire_loc_back
   lw $a1, 0($a0)
   add $a1, $a1, 1
-  blt $a1, 100, store_fire_back
+  blt $a1, 90, store_fire_back
   li $a1, 0
 
 store_fire_back:
@@ -351,7 +351,7 @@ bonk_interrupt:
   sw $a0, ANGLE
   li $a1, 0
   sw $a1, ANGLE_CONTROL
-  li $a0, 10 # Not sure what velocity we want this to be 10 is highest but it's a little fast
+  li $a0, 10 
   sw $a0, VELOCITY
   j interrupt_dispatch
   
